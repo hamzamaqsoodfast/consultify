@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .cover-header {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            background: url('media/doctor.jpg') center/cover;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            z-index: 1;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        form input[type="text"],
+        form select {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        form input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        form input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .action-column {
+            text-align: center;
+        }
+
+        .action-icons {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .action-icons a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        .action-icons a:hover {
+            color: #2980b9;
+        }
+
+        .cover-header {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            display: flex;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            color: white;
+            /* Ensure text is visible on the overlay */
+        }
+
+        .form-container {
+            flex: 1;
+            max-width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #main {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        form {
+            flex: 1;
+            max-width: 50%;
+            margin: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .barcode-scanner {
+            max-width: 50%;
+            margin: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .barcode-scanner video {
+            width: 100%;
+        }
+
+        #barcode-result {
+            margin-top: 10px;
+        }
+
+        /* Add this CSS to your stylesheets or in a style tag in your HTML file */
+        .edit-btn,
+        .delete-btn {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-btn:hover,
+        .delete-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        #errordetect {
+            color: red;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #datainserted {
+            color: rgb(148, 223, 37);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        #searchBox {
+            margin-bottom: 20px;
+        }
+
+        #searchBox {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        /* Table styles */
+        #medicineTable {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #medicineTable th,
+        #medicineTable td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        #medicineTable th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #updatetable {
+            display: none;
+        }
+
+        img {
+            max-height: 400px;
+        }
+
+        th {
+            background-color: #2980b9;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #e6e6e6;
+        }
+
+        tbody tr:hover {
+            background-color: #d4d4d4;
+        }
+
+        .scrollable {
+            max-height: 300px;
+            border-radius: 50px;
+
+        }
+    </style>
+    <title>Manage Doctors</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron jumbotron-fluid bg-primary text-white">
+                    <div class="container">
+                        <h1 class="display-4">Manage Doctors</h1>
+                        <p class="lead">Add, update, and manage doctor profiles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card" id="add">
+                    <div class="card-header bg-dark text-white">
+                        Add Doctor
+                    </div>
+                    <div class="card-body" style="width: 900px; padding: 0px; margin: 0px; ">
+                        <form id="addDoctorForm">
+                            <div class="form-group">
+                                <label for="doctorName">Doctor Name:</label>
+                                <input type="text" class="form-control" id="doctorName" name="firstname" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactNumber">Contact Number:</label>
+                                <input type="text" class="form-control" id="contactNumber" name="contactnumber"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="services">Medical Specialties and Additional Services:</label>
+                                <select class="form-control" id="services" multiple>
+                                  <optgroup label="Medical Specialties">
+                                    <option>Anesthesiology</option>
+                                    <option>Cardiology</option>
+                                    <option>Dermatology</option>
+                                    <option>Endocrinology</option>
+                                    <option>Gastroenterology</option>
+                                    <option>Hematology</option>
+                                    <option>Infectious Disease</option>
+                                    <option>Neurology</option>
+                                    <option>Obstetrics and Gynecology (OB/GYN)</option>
+                                    <option>Oncology</option>
+                                    <option>Ophthalmology</option>
+                                    <option>Orthopedics</option>
+                                    <option>Otolaryngology (ENT)</option>
+                                    <option>Pediatrics</option>
+                                    <option>Pulmonology</option>
+                                    <option>Psychiatry</option>
+                                    <option>Radiology</option>
+                                    <option>Rheumatology</option>
+                                  </optgroup>
+                                  <optgroup label="Additional Services">
+                                    <option>Primary Care</option>
+                                    <option>Emergency Medicine</option>
+                                    <option>Physical Therapy</option>
+                                    <option>Occupational Therapy</option>
+                                    <option>Speech Therapy</option>
+                                    <option>Nutrition Counseling</option>
+                                    <option>Pharmacy Services</option>
+                                    <option>Laboratory Services</option>
+                                    <option>Imaging Services (X-ray, MRI, CT scan, Ultrasound)</option>
+                                    <option>Surgical Services</option>
+                                  </optgroup>
+                                </select>
+                              </div>
+                         
+                            <div class="form-group">
+                                <label for="qualifications">Qualifications:</label>
+                                <textarea class="form-control" id="qualifications" name="qualifications" rows="3"
+                                    required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="experienceYears">Experience (Years):</label>
+                                <input type="number" class="form-control" id="experienceYears" name="experience_years"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="profilePictureUrl">Profile Picture URL:</label>
+                                <input type="text" class="form-control" id="profilePictureUrl"
+                                    name="profile_picture_url">
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Dashboard Username:</label>
+                                <input type="text" class="form-control" id="username" name="username">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Dashboard Password:</label>
+                                <input type="text" class="form-control" id="password" name="password">
+                            </div>
+                            <div class="form-group">
+                                <label for="doctorFees">Doctor Fees:</label>
+                                <input type="text" class="form-control" id="doctorFees" name="doctorFees" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" onclick="adddoctor()">Add Doctor</button>
+                        </form>
+                    </div>
+                </div>
+
+
+                <div class="card" id="update" style="display: none;">
+                    <div class="card-header bg-dark text-white">
+                        Update Doctor
+                    </div>
+                    <div class="card-body" style="width: 900px; padding: 0px; margin: 0px; ">
+                        <form id="addDoctorForm">
+                            <div class="form-group">
+                                <label for="doctorName">Doctor ID:</label>
+                                <input type="text" class="form-control" id="docid" name="docid" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label for="doctorName">Doctor Name:</label>
+                                <input type="text" class="form-control" id="doctorName1" name="firstname" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactNumber">Contact Number:</label>
+                                <input type="text" class="form-control" id="contactNumber1" name="contactnumber"
+                                    required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="qualifications">Qualifications:</label>
+                                <textarea class="form-control" id="qualifications1" name="qualifications" rows="3"
+                                    required></textarea>
+                            </div>
+                         
+                            <div class="form-group">
+                                <label for="experienceYears">Experience (Years):</label>
+                                <input type="number" class="form-control" id="experienceYears1" name="experience_years"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email1" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="profilePictureUrl">Profile Picture URL:</label>
+                                <input type="text" class="form-control" id="profilePictureUrl1"
+                                    name="profile_picture_url">
+                            </div>
+                            <div class="form-group">
+                                <label for="username">Dashboard Username:</label>
+                                <input type="text" class="form-control" id="username1" name="username">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Dashboard Password:</label>
+                                <input type="text" class="form-control" id="password1" name="password">
+                            </div>
+                            <div class="form-group">
+                                <label for="services">Medical Specialties and Additional Services:</label>
+                                <select class="form-control" id="services1" multiple>
+                                  <optgroup label="Medical Specialties">
+                                    <option>Anesthesiology</option>
+                                    <option>Cardiology</option>
+                                    <option>Dermatology</option>
+                                    <option>Endocrinology</option>
+                                    <option>Gastroenterology</option>
+                                    <option>Hematology</option>
+                                    <option>Infectious Disease</option>
+                                    <option>Neurology</option>
+                                    <option>Obstetrics and Gynecology (OB/GYN)</option>
+                                    <option>Oncology</option>
+                                    <option>Ophthalmology</option>
+                                    <option>Orthopedics</option>
+                                    <option>Otolaryngology (ENT)</option>
+                                    <option>Pediatrics</option>
+                                    <option>Pulmonology</option>
+                                    <option>Psychiatry</option>
+                                    <option>Radiology</option>
+                                    <option>Rheumatology</option>
+                                  </optgroup>
+                                  <optgroup label="Additional Services">
+                                    <option>Primary Care</option>
+                                    <option>Emergency Medicine</option>
+                                    <option>Physical Therapy</option>
+                                    <option>Occupational Therapy</option>
+                                    <option>Speech Therapy</option>
+                                    <option>Nutrition Counseling</option>
+                                    <option>Pharmacy Services</option>
+                                    <option>Laboratory Services</option>
+                                    <option>Imaging Services (X-ray, MRI, CT scan, Ultrasound)</option>
+                                    <option>Surgical Services</option>
+                                  </optgroup>
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="doctorFees">Doctor Fees:</label>
+                                <input type="text" class="form-control" id="doctorFees1" name="doctorFees" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" onclick="updatedoctor()">Update
+                                Doctor</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        Doctor List
+                    </div>
+                    <div class="card-body">
+                        <input type="text" id="searchBox" class="form-control mb-3" placeholder="Search by Doctor Name">
+                        <div class="table-responsive">
+                            <table class="table" id="customertable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Doctor ID</th>
+                                        <th>Doctor Name</th>
+                                        <th>Qualifications</th>
+                                        <th>Experience (Years)</th>
+                                     
+                                        <th>Contact Number</th>
+                                        <th>Email</th>
+                                        <th>Profile Picture URL</th>
+                                        <th>Username</th>
+                                        <th>Password</th>
+                                        <th>Specialization</th>
+
+                                        <th>Fees</th>
+
+                                        <th>Action</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="customerid"></td>
+                                        <td class="customername"></td>
+                                        <td class="qualifications"></td>
+
+                                        <td class="experience"></td>
+                                        <td class="contactnumber"></td>
+                                        <td class="email"></td>
+                                        <td class="profilepictureurl"></td>
+                                        <td class="username"></td>
+                                        <td class="password"></td>
+                                        <td class="specialization"></td>
+
+                                        <td class="fees"></td>
+                                        <td class="action"></td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        document.getElementById('searchBox').addEventListener('input', function () {
+            var searchText = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#customertable tbody tr');
+
+            rows.forEach(function (row) {
+                var cells = row.getElementsByTagName('td');
+                var isMatch = false;
+
+                for (var i = 1; i < cells.length - 1; i++) {
+                    var cellText = cells[i].textContent.toLowerCase();
+                    if (cellText.includes(searchText)) {
+                        isMatch = true;
+                        break;
+                    }
+                }
+
+                row.style.display = isMatch ? '' : 'none';
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
+
+<script>
+
+    const socket = new WebSocket('ws://localhost:8080');
+    const tableBody = document.querySelector('#customertable tbody');
+
+    socket.addEventListener('message', (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.errorsinsertion !== undefined) {
+                document.getElementById('errordetect').innerText = data.errorsinsertion;
+
+
+
+
+            }
+
+        }
+        catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+        }
+    });
+    
+    socket.addEventListener('message', (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.successmessage !== undefined) {
+                location.reload();
+                document.getElementById('errordetect').innerText = " ";
+
+                document.getElementById('datainserted').innerText = data.successmessage;
+
+
+
+
+            }
+
+        }
+        catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+        }
+    });
+
+    socket.addEventListener('message', (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.doctorsdata !== undefined) {
+                updateTable(data.doctorsdata);
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+    function updateTable(customerdata) {
+        // Clear existing rows in the table body
+        //  tableBody.innerHTML = '';
+        // If medicineData is empty, do not display action buttons
+        if (customerdata.length === 0) {
+            return;
+        }
+
+        // Iterate through each medicine in the data and append a new row to the table
+        customerdata.forEach((customer) => {
+            const newRow = document.createElement('tr');
+
+            // Display data up to the 6th column
+            for (let i = 0; i < 11; i++) {
+                const newCell = document.createElement('td');
+                const propertyName = Object.keys(customer)[i];
+                newCell.textContent = customer[propertyName];
+
+                // Add a class to the cell based on the property name
+                newCell.classList.add(propertyName.toLowerCase());
+
+                newRow.appendChild(newCell);
+            }
+
+            // Create action buttons and add event listeners
+            const actionCell = document.createElement('td');
+
+            const editButton = createButton('Edit', 'edit-btn', () => {
+                // Pass the entire medicine object to the editRow function
+                editdoctorrows(newRow);
+            });
+
+            const deleteButton = createButton('Delete', 'delete-btn', () => {
+                deletedoctors(newRow);
+            });
+
+            actionCell.appendChild(editButton);
+            actionCell.appendChild(deleteButton);
+
+            // Append the action cell to the new row
+            newRow.appendChild(actionCell);
+
+            // Append the new row to the table body
+            tableBody.appendChild(newRow);
+        });
+    }
+
+
+    function createButton(text, className, clickHandler) {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.className = className;
+        button.addEventListener('click', clickHandler);
+        return button;
+    }
+    function deletedoctors(rowdata) {
+        console.log('row data is', rowdata);
+
+        var customerid = rowdata.querySelector('.doctor_id').textContent;
+        var cusid = encodeURIComponent(customerid);
+        const url = `http://localhost:3000/deletedoctor?customerid=${cusid}`;
+
+        fetch(url)
+            .then(response => response.text())
+            .then(message => {
+                console.log(message);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    }
+
+    function editdoctorrows(rowdata) {
+
+        console.log(rowdata);
+        document.getElementById('add').style.display = 'none';
+        document.getElementById('update').style.display = 'block'
+        var customerid = rowdata.querySelector('.doctor_id').textContent;
+        var customername = rowdata.querySelector('.doctor_name').textContent;
+        var contactnumber = rowdata.querySelector('.contact_number').textContent;
+        var qualifications = rowdata.querySelector('.qualifications').textContent;
+        var experience = rowdata.querySelector('.experience_years').textContent;
+        var email = rowdata.querySelector('.email').textContent;
+        var profilepictureurl = rowdata.querySelector('.profile_picture_url').textContent;
+        var username = rowdata.querySelector('.username').textContent;
+        var password = rowdata.querySelector('.password').textContent;
+        var service = rowdata.querySelector('.service').textContent;
+        var fees = rowdata.querySelector('.fees').textContent;
+
+        document.getElementById('docid').value = customerid;
+
+        document.getElementById('doctorName1').value = customername;
+        document.getElementById('contactNumber1').value = contactnumber;
+        document.getElementById('qualifications1').value = qualifications;
+        document.getElementById('experienceYears1').value = experience;
+        document.getElementById('email1').value = email;
+        document.getElementById('profilePictureUrl1').value = profilepictureurl;
+        document.getElementById('username1').value = username;
+        document.getElementById('password1').value = password;
+        document.getElementById('services1').value = service;
+        document.getElementById('doctorFees1').value = fees;
+
+    }
+
+
+    function adddoctor() {
+        event.preventDefault();
+
+        const doctorName = encodeURIComponent(document.getElementById('doctorName').value);
+        const contactNumber = encodeURIComponent(document.getElementById('contactNumber').value);
+        const qualifications = encodeURIComponent(document.getElementById('qualifications').value);
+        const experienceYears = encodeURIComponent(document.getElementById('experienceYears').value);
+        const email = encodeURIComponent(document.getElementById('email').value);
+        const profilePictureUrl = encodeURIComponent(document.getElementById('profilePictureUrl').value);
+        const username = encodeURIComponent(document.getElementById('username').value);
+        const fees=encodeURIComponent(document.getElementById('doctorFees').value);
+        const password = encodeURIComponent(document.getElementById('password').value);
+        var selectElement = document.getElementById("services");
+      var selectedService = encodeURIComponent(selectElement.value);
+      console.log(selectedService);
+
+        const url = `http://localhost:3000/senddoctor?username=${username}&password=${password}&doctorName=${doctorName}&contactNumber=${contactNumber}&qualifications=${qualifications}&experienceYears=${experienceYears}&email=${email}&profilePictureUrl=${profilePictureUrl}&selectedService=${selectedService}&fees=${fees}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); // log the response data
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+            });
+    }
+
+
+
+    function updatedoctor() {
+
+        const doctorid = encodeURIComponent(document.getElementById('docid').value);
+
+        const doctorName = encodeURIComponent(document.getElementById('doctorName1').value);
+        const contactNumber = encodeURIComponent(document.getElementById('contactNumber1').value);
+        const qualifications = encodeURIComponent(document.getElementById('qualifications1').value);
+        const experienceYears = encodeURIComponent(document.getElementById('experienceYears1').value);
+        const email = encodeURIComponent(document.getElementById('email1').value);
+        const profilePictureUrl = encodeURIComponent(document.getElementById('profilePictureUrl1').value);
+        const username = encodeURIComponent(document.getElementById('username1').value);
+
+        const password = encodeURIComponent(document.getElementById('password1').value);
+        var selectElement = document.getElementById("services1");
+      var service = encodeURIComponent(selectElement.value);
+      const fees=  document.getElementById('doctorFees1').value ;
+        const url = `http://localhost:3000/updatedoctor?username=${username}&password=${password}&doctorid=${doctorid}&doctorName=${doctorName}&contactNumber=${contactNumber}&qualifications=${qualifications}&experienceYears=${experienceYears}&email=${email}&profilePictureUrl=${profilePictureUrl}&service=${service}&fees=${fees}`;
+        fetch(url)
+            .then(response => response.text())
+            .then(message => {
+                console.log(message);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    }
+</script>
