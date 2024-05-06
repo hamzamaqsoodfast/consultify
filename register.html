@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration</title>
+    <link rel="stylesheet" type="text/CSS" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-panel">
+            <div class="login-form">
+                <h2>Register to Appointment Booking Software</h2>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <!-- Changed button type to submit -->
+                <button type="submit" onclick="senddata()">Register</button>
+                <p id="errormessage" style="color: red; font-weight: bold;"></p>
+            </div>
+        </div>
+        <div class="left-panel"></div>
+    </div>
+    <div id="snackbar" >User Registered Successfully!</div>
+
+    <script>
+        async function senddata(){
+            var user=document.getElementById('username').value;
+            var pass=document.getElementById('password').value;
+            var email=document.getElementById('email').value;
+            var phone=document.getElementById('phone').value;
+            var url = 'http://localhost:3000/register'; // Endpoint URL
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: user, password: pass, email: email, phone: phone })
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                // Display success message or handle response as needed
+                console.log(data.message);
+                //document.getElementById('errormessage').textContent = data.message;
+                showSnackbar();
+                
+        
+            } catch (error) {
+                console.error('Error sending data:', error);
+                // Handle error (e.g., display error message)
+                document.getElementById('errormessage').textContent = 'Registration failed. Please try again later.';
+            }
+        }
+        function showSnackbar() {
+            const snackbar = document.getElementById("snackbar");
+            snackbar.classList.add("show");
+            setTimeout(() => {
+            snackbar.classList.remove("show");
+            }, 3000); // Display for 3 seconds
+        }
+    </script>
+</body>
+
+</html>
