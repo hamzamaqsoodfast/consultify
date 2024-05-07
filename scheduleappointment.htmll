@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Appointment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        #noSlotsMessage {
+            color: red;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        body {
+            background-color: #e3f2fd;
+            /* Light blue background */
+            color: #4a5568;
+            /* Gray text */
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 960px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        .btn-primary,
+        .btn-success {
+            border: none;
+            border-radius: 5px;
+            background-color: #38b2ac;
+            /* Teal background */
+            color: #ffffff;
+            /* White text */
+        }
+
+        .btn-primary:hover,
+        .btn-success:hover {
+            background-color: #319795;
+            /* Darker teal */
+        }
+
+        .form-select,
+        .form-control {
+            border-radius: 5px;
+            border: 2px solid #cbd5e0;
+            /* Light gray border */
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #2d3748;
+            /* Darker gray */
+        }
+
+        h2 {
+            color: #2c5282;
+            /* Dark blue */
+        }
+
+        .list-group-item {
+            border-radius: 5px;
+        }
+
+        .list-group-item:hover {
+            background-color: #bee3f8;
+            /* Light blue */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Schedule Your Appointment</h2>
+        <!-- Category Selection -->
+        <div class="mb-4">
+            <label for="category" class="form-label">Select Category:</label>
+            <select class="form-select" id="category">
+
+            </select>
+        </div>
+        <!-- Doctor Selection -->
+        <div class="mb-4">
+            <label for="doctor" class="form-label">Select Doctor:</label>
+            <select class="form-select" id="doctor">
+
+            </select>
+        </div>
+        <div class="card mb-4" id="doctorInfo">
+            <div class="card-body">
+                <h5 class="card-title">Loading</h5>
+                <p class="card-text">Loading.</p>
+            </div>
+        </div>
+        <!-- Date Picker -->
+        <div class="mb-4">
+            <label for="date" class="form-label">Select Date:</label>
+            <input type="date" class="form-control" id="date">
+        </div>
+        <script>
+            const dateInput = document.getElementById('date');
+
+            // Function to get the current date adjusted to Pakistan Standard Time (UTC+5)
+            function getPakistanTimeDate() {
+                const now = new Date();
+                // Set the time considering Pakistan is UTC+5
+                now.setUTCHours(now.getUTCHours() + 5);
+                now.setUTCHours(0, 0, 0, 0); // Set the hours, minutes, seconds, and milliseconds to zero, in UTC time
+                return now;
+            }
+
+            const today = getPakistanTimeDate(); // Get today's date in Pakistan Standard Time
+            const maxDate = new Date(today); // Create a new date object based on today
+
+            maxDate.setDate(maxDate.getDate() + 7); // Set the maximum date to today + 7 days
+
+            // Set the minimum and maximum values of the date input field
+            dateInput.min = today.toISOString().split('T')[0];
+            dateInput.max = maxDate.toISOString().split('T')[0];
+
+            // Ensure the input value is set to today's date to reflect current date initially
+            dateInput.value = today.toISOString().split('T')[0];
+        </script>
+
+
+        <!-- Check Availability -->
+        <button onclick="checkavailableslots()" class="btn btn-primary mb-4">Check Available Time Slots</button>
+        <p id="noSlotsMessage"></p>
+
+        <!-- Time Slots (hidden initially) -->
+        <div id="timeSlots" class="mb-4 d-none">
+            <div id="slotsList" class="form-check form-check-inline">
+                <!-- Available time slots will be dynamically added here -->
+            </div>
+        </div>
+        <!-- Doctor Info Card -->
+
+        <!-- Appointment Details -->
+        <div class="mb-4">
+            <label for="appointmentDescription" class="form-label">Description of Appointment:</label>
+            <textarea class="form-control" id="appointmentDescription" rows="3"
+                placeholder="Please Write your detailed reason for booking this appoinment! (Required)"></textarea>
+        </div>
+        <!-- Upload Drive File Link -->
+        <div class="mb-4">
+            <label for="fileLink" class="form-label">Upload Drive File Link:</label>
+            <input type="url" class="form-control" id="fileLink"
+                placeholder="Please Enter your document link after uploading to the Google Drive (Optional)">
+        </div>
+        <!-- Payment Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Payment Details</h5>
+                <p class="card-text" id="fees"></p>
+                <div class="mb-3">
+                    <label for="paymentMethod" class="form-label">Choose Payment Method:</label>
+                    <select class="form-select" id="paymentMethod">
+                        <option value="easypaisa">Easypaisa</option>
+                        <option value="jazzcash">Jazzcash</option>
+                    </select>
+                </div>
+                <img style="width: 300px; height: 300px;" src="img/easypaisa.png" alt="Payment QR Code"
+                    class="img-fluid mb-3" id="paymentQR">
+                <div class="mb-3">
+                    <label for="transactionId" class="form-label">Transaction ID:</label>
+                    <input type="text" class="form-control" id="transactionId"
+                        placeholder="Enter your transaction Id received on your phone from Easypaisa or Jazzcash">
+                </div>
+                <button onclick="bookappointment()" class="btn btn-primary">Book Appointment</button>
+            </div>
+        </div>
+        <script>
+            document.getElementById('paymentMethod').addEventListener('change', function () {
+                var paymentMethod = this.value;
+                var qrImage = document.getElementById('paymentQR');
+                if (paymentMethod === 'easypaisa') {
+                    qrImage.src = 'img/easypaisa.png';  // Update this URL with the actual Easypaisa QR code URL
+                    qrImage.alt = 'Easypaisa QR Code';
+                } else if (paymentMethod === 'jazzcash') {
+                    qrImage.src = 'img/jazzcash.png';  // Update this URL with the actual JazzCash QR code URL
+                    qrImage.alt = 'JazzCash QR Code';
+                }
+            });
+
+        </script>
+        <p id="doctorid" style="display: none;"></p>
+        <!-- Book Appointment Button -->
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+<script>
+    var doctorsData = [];
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category');
+        const doctorSelect = document.getElementById('doctor');
+        const doctorInfoDiv = document.getElementById('doctorInfo');
+
+        const socket = new WebSocket('ws://localhost:8080');
+
+
+        // Function to create a radio button for each available time slot
+        function createRadioButton(slot) {
+            const radioButton = document.createElement('input');
+            radioButton.type = 'radio';
+            radioButton.className = 'form-check-input';
+            radioButton.name = 'timeSlot'; // Ensure only one can be selected
+            radioButton.value = slot;
+
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.appendChild(document.createTextNode(slot));
+
+            const div = document.createElement('div');
+            div.className = 'form-check form-check-inline'; // Display inline
+            div.appendChild(radioButton);
+            div.appendChild(label);
+
+            return div;
+        }
+
+        // Function to handle the response and display the radio buttons
+        function handleResponse(data) {
+            const timeSlotsDiv = document.getElementById('timeSlots');
+            const slotsListDiv = document.getElementById('slotsList');
+            slotsListDiv.innerHTML = ""; // Clear any previous content
+            document.getElementById('noSlotsMessage').innerText = '';
+
+            if (data.availableTimeSlots.length > 0 && data.availableTimeSlots !== 'no') {
+                data.availableTimeSlots.forEach(slot => {
+                    const radioButton = createRadioButton(slot);
+                    slotsListDiv.appendChild(radioButton);
+                });
+                // Show the timeSlots div
+                timeSlotsDiv.classList.remove('d-none');
+            } else if (data.availableTimeSlots === 'no') {
+                // If there are no available time slots, display a message
+                document.getElementById('noSlotsMessage').innerText = "No available time slots for the specified date and doctor";
+                // Show the timeSlots div
+                timeSlotsDiv.classList.remove('d-none');
+            }
+        }
+
+        
+
+        socket.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.bookingdone !== undefined) {
+                    window.location.replace("http://127.0.0.1:5500/paymenteasypaisa.html");
+
+                }
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        });
+
+        // WebSocket message event handler
+        socket.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.availableTimeSlots !== undefined) {
+                    handleResponse(data);
+                }
+            } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+            }
+        });
+
+
+
+
+
+
+        const notavail = document.getElementById('noSlotsMessage');
+
+
+
+        socket.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.doctorsdata !== undefined) {
+                    doctorsData = data.doctorsdata;
+                    console.log(doctorsData)
+                    populateCategories(); // Populate categories based on updated data
+                    updateDoctorDropdown(); // Update doctors dropdown based on first category by default
+                }
+            } catch (error) {
+                console.error('Error parsing data: ', error);
+            }
+        });
+        // Function to populate categories from doctors' data
+        function populateCategories() {
+            const categories = new Set(doctorsData.map(doctor => doctor.service));
+            categorySelect.innerHTML = '';
+            document.getElementById('noSlotsMessage').innerText = '';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.textContent = category;
+                option.value = category;
+                categorySelect.appendChild(option);
+            });
+
+            // Automatically update doctors after populating categories
+            if (categorySelect.options.length > 0) {
+                updateDoctorDropdown();
+            }
+        }
+
+        // Function to update the doctor dropdown based on the selected category
+        function updateDoctorDropdown() {
+            const selectedCategory = categorySelect.value;
+            doctorSelect.innerHTML = '';
+            document.getElementById('noSlotsMessage').innerText = '';
+            doctorsData.filter(doctor => doctor.service === selectedCategory).forEach(doctor => {
+                const option = document.createElement('option');
+                option.textContent = `${doctor.doctor_name} (${doctor.qualifications})`;
+                option.value = doctor.doctor_id;
+                doctorSelect.appendChild(option);
+            });
+
+            // Automatically display details of the first listed doctor
+            if (doctorSelect.options.length > 0) {
+                displayDoctorDetails(doctorSelect.value);
+            }
+        }
+
+        // Function to display doctor details
+        function displayDoctorDetails(doctorId) {
+            const doctor = doctorsData.find(doc => doc.doctor_id.toString() === doctorId);
+            if (doctor) {
+                const starRating = getStarRating(doctor.rating); // Function to create star rating
+                document.getElementById('doctorid').innerText = doctor.doctor_id;
+                document.getElementById('fees').innerText = 'Fees: ' + doctor.fees
+                doctorInfoDiv.innerHTML = `
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="card-title"><i class="bi bi-person-badge"></i> ${doctor.doctor_name}</h5>
+                    <p class="card-text"><i class="bi bi-award"></i> Qualifications: ${doctor.qualifications}</p>
+                    <p class="card-text"><i class="bi bi-calendar3"></i> Experience: ${doctor.experience_years} years</p>
+                    <p class="card-text"><i class="bi bi-telephone"></i> Contact: ${doctor.contact_number}</p>
+                    <p class="card-text">${starRating}</p>
+                </div>
+                <img src="${doctor.profile_picture_url}" alt="Doctor Image" class="img-fluid rounded-circle" style="width: 100px; height: 100px;">
+            </div>
+        `;
+            } else {
+                console.log("Doctor not found with id:", doctorId);
+            }
+        }
+
+        // Function to create star rating HTML, handling floating-point ratings
+        function getStarRating(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0; // Check if there's a fractional part
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '<i class="bi bi-star-fill"></i>';
+                } else if (hasHalfStar && i === fullStars + 1) {
+                    stars += '<i class="bi bi-star-half"></i>';
+                } else {
+                    stars += '<i class="bi bi-star"></i>';
+                }
+            }
+            return stars;
+        }
+
+        // Event listeners for change in selections
+        categorySelect.addEventListener('change', updateDoctorDropdown);
+        doctorSelect.addEventListener('change', () => {
+            displayDoctorDetails(doctorSelect.value);
+        });
+    });
+
+    function checkavailableslots() {
+        const button = document.querySelector('.btn-primary');
+        button.disabled = true; // Disable button
+
+        const timeSlotsDiv = document.getElementById('timeSlots');
+        const slotsListDiv = document.getElementById('slotsList');
+        slotsListDiv.innerHTML = ""; // Clear any previous content
+
+        const date = document.getElementById('date').value;
+        const doctorid = document.getElementById('doctorid').innerText;
+        const url = `http://localhost:3003/checkdoctoravail?doctorid=${doctorid}&date=${date}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                button.disabled = false; // Enable button after fetching
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+                button.disabled = false; // Enable button on error
+            });
+
+    }
+    function bookappointment() {
+        var description = document.getElementById('appointmentDescription').value;
+
+        var drivelink = document.getElementById('fileLink').value;
+        var dropdown = document.getElementById("paymentMethod");
+        var date = document.getElementById('date').value;
+        var selectedOption = dropdown.value;
+
+        var selectedOptionText = dropdown.options[dropdown.selectedIndex].text;
+        var transactionId = document.getElementById('transactionId').value;
+        var timeSlotsDiv = document.getElementById("timeSlots");
+
+        var feesText = document.getElementById('fees').innerText;
+        var numericPart = feesText.match(/\d+/)[0];
+        if (!timeSlotsDiv.classList.contains("d-none")) {
+            var radioButtons = timeSlotsDiv.querySelectorAll('input[type="radio"]:checked');
+
+            if (radioButtons.length > 0) {
+                var selectedValue = radioButtons[0].value;
+            } else {
+                alert("Please select Time Slot first")
+
+            }
+        } else {
+            alert("Please select Time Slot first.");
+        }
+
+        if (description == '') {
+            alert('Description Cannot be empty, please write your problem there!');
+        }
+        else if (transactionId == '') {
+            alert('Please enter transaction id after sending payment via QR code');
+        }
+        else if (description != '' && transactionId != '') {
+            const doctorid = document.getElementById('doctorid').innerText;
+            const patientemail = localStorage.getItem('email');
+            var timeslotappointment = selectedValue;
+            const url = `http://localhost:3003/savebooking?doctorid=${doctorid}&patientemail=${patientemail}&date=${date}&timeslotappointment=${timeslotappointment}&drivelink=${drivelink}&description=${description}&paymentmethod=${selectedOptionText}&transactionId=${transactionId}&fees=${numericPart}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    button.disabled = false; // Enable button after fetching
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    button.disabled = false; // Enable button on error
+                });
+        }
+    }
+</script>
