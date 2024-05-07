@@ -500,3 +500,51 @@ console.log(username);
         console.error('Error:', error.message);
     }
 });
+async function totalappointments(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Appointments');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        totalappointments: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    totalappointments(ws);
+  });
+  async function totalpatients(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Patients');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        patientcount: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    totalpatients(ws);
+  });
