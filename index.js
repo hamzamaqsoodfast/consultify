@@ -548,3 +548,45 @@ async function totalappointments(ws) {
   wss.on('connection', (ws) => {
     totalpatients(ws);
   });
+app1.get('/updatedoctorrating', async (req, res) => {
+    // Extracting query parameters from the request
+    const rating = parseFloat(req.query.rating); // Ensure rating is parsed as float
+    const appointmentId = req.query.appointmentId;
+
+    try {
+        // Update the rating of the appointment in the Appointments table
+        await pool.execute(`
+            UPDATE Appointments 
+            SET rating = ?
+            WHERE AppointmentID = ?
+        `, [rating, appointmentId]);
+
+        // Fetch the doctor ID associated with the appointment
+        const [doctorRows] = await pool.execute(`
+            SELECT DoctorID FROM Appointments WHERE AppointmentID = ?
+        `, [appointmentId]);
+
+        const doctorID = doctorRows[0].DoctorID;
+
+        // Calculate new collective rating for the doctor
+        const [ratingRows] = await pool.execute(`
+            SELECT AVG(rating) AS avgRating FROM Appointments WHERE DoctorID = ? AND Status = 'completed' AND rating IS NOT NULL
+        `, [doctorID]);
+
+        const newRating = ratingRows[0].avgRating;
+
+        // Update the collective rating of the doctor in the Doctors table
+        await pool.execute(`
+            UPDATE Doctors 
+            SET rating = ?
+            WHERE doctor_id = ?
+        `, [newRating, doctorID]);
+
+        const response = { success: "Rating updated successfully." };
+        res.json(response);
+    
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
