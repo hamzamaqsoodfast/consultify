@@ -223,3 +223,118 @@ catch(error)
 
 
 });
+
+app.get('/deletedoctor', async (req, res) => {
+    const doctorid = req.query.customerid;
+    // console.log(customerid);
+ 
+
+    try {
+
+        // Check if the medicineID exists before deletion
+        const checkSql = 'SELECT * FROM Doctors WHERE doctor_id = ?';
+        const checkResult = await pool.query(checkSql, [doctorid]);
+
+        if (checkResult.length === 0) {
+            const response = {
+                errorsdeletion: 'Doctor not found. Deletion failed.',
+            };
+
+            wss.clients.forEach((client) => {
+                client.send(JSON.stringify(response));
+            });
+
+            //    console.log(response);
+            res.status(404).send('Doctor not found. Deletion failed.');
+            return;
+        }
+
+        // Delete the row with the specified medicineID
+        const deleteSql = 'DELETE FROM Doctors WHERE doctor_id = ?';
+        await pool.query(deleteSql, [doctorid]);
+
+        let successmessage = 'Doctor Deleted Successfully!';
+        const response = {
+            successmessage: successmessage,
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+        // console.log('Data deleted from customer table');
+        res.send('Data received and deleted successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+
+        let responseMessage;
+        let statusCode;
+
+        switch (error.code) {
+            // Handle specific error codes as needed
+            default:
+                responseMessage = 'Internal Server Error';
+                statusCode = 500;
+        }
+
+        const response = {
+            errorsdeletion: responseMessage,
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+        //console.log(response);
+        res.status(statusCode).send(responseMessage);
+    } finally {
+    
+    }
+});
+
+
+
+app.get('/updateslots', async (req, res) => {
+    const username = req.query.username;
+    const availability = JSON.parse(decodeURIComponent(req.query.availability));
+    console.log(username);
+    console.log(availability);
+
+
+    try {
+        const [doctors] = await pool.query('SELECT doctor_id FROM Doctors WHERE username = ?', [username]);
+        if (doctors.length === 0) {
+            throw new Error('Doctor not found');
+        }
+        const doctorId = doctors[0].doctor_id;
+
+        await pool.query('START TRANSACTION');
+
+        await pool.query('DELETE FROM DoctorAvailability WHERE doctorId = ?', [doctorId]);
+
+        for (const day of availability) {
+            console.log(day.date);
+            for (const slot of day.slots) {
+                const slotTime = ${slot}:00;
+                await pool.query('INSERT INTO DoctorAvailability (doctorId, dayOfWeek,dayDate, slot, isAvailable, isbooked) VALUES (?, ?, ?, ?, true, false)', [doctorId, day.day, day.date,slotTime]);
+            }
+        }
+
+        await pool.query('COMMIT');
+
+        const response = {
+            successupdated: "Availability updated successfully",
+
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.error('Failed to update availability', error);
+        res.status(500).json({ message: 'Failed to update availability' });
+    }
+});
