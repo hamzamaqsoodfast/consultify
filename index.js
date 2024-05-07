@@ -590,3 +590,78 @@ app1.get('/updatedoctorrating', async (req, res) => {
         res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
     }
 });
+app1.get('/getallappointments', async (req, res) => {
+    try {
+        console.log(5);
+        const [appointments] = await pool.execute(`
+        SELECT A.feedback,A.AppointmentID,A.PatientEmail, A.AppointmentDate, A.Status, A.Notes, A.DriveLink, D.doctor_name, DA.slot
+        FROM Appointments A
+        JOIN Doctors D ON A.DoctorID = D.doctor_id
+        JOIN DoctorAvailability DA ON A.SlotID = DA.id
+            ORDER BY 
+                CASE WHEN Status = 'pending' THEN 0 ELSE 1 END, 
+                AppointmentID
+        `);
+        console.log(appointments)
+
+        res.json({completeddata: appointments});
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error');
+    }
+});
+
+app1.get('/getallpayments', async (req, res) => {
+    try {
+        console.log(5);
+        const [payments] = await pool.execute(`
+        SELECT P.PaymentID, P.AppointmentID, P.PatientEmail, P.Amount, P.Method, P.TransactionID, P.PaymentStatus, P.DateOfPayment, P.RefundStatus
+        FROM Payments P
+        ORDER BY P.DateOfPayment DESC, 
+                 CASE WHEN P.PaymentStatus = 'pending' THEN 0 ELSE 1 END
+        
+        `);
+        console.log(payments);
+
+        res.json({completeddata: payments});
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error');
+    }
+});
+
+
+app1.get('/changestatus', async (req, res) => {
+    // Extracting query parameters from the request
+    const appointmentId = req.query.appointmentId;
+    const status = req.query.status;
+    const updatedstatus = status.toLowerCase(); // Ensure status is in lower case
+
+    try {
+        // Update the status of the appointment in the Appointments table
+        await pool.execute(`
+            UPDATE Appointments 
+            SET Status = ?
+            WHERE AppointmentID = ?
+        `, [updatedstatus, appointmentId]);
+
+        // Assuming you want to fetch and sort appointments after updating status
+        const [appointments] = await pool.execute(`
+            SELECT * FROM Appointments 
+            ORDER BY 
+                CASE WHEN LOWER(Status) = 'pending' THEN 0 ELSE 1 END, 
+                AppointmentID
+        `);
+        const response = {
+            successstatus: "Status updated successfully.",
+            data: appointments
+        };
+        console.log(response);
+
+        res.json(response);
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
+
