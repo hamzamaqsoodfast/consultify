@@ -139,3 +139,87 @@ app.get('/verifyclientlogin', async (req, res) => {
         console.error('Error:', error.message);
     }
 });
+app.get('/senddoctor',async (req,res)=>
+{
+
+try{
+    const doctorName = req.query.doctorName; 
+    const contactNumber = req.query.contactNumber;
+    const qualifications = req.query.qualifications;
+    const experienceYears = req.query.experienceYears; 
+    const email = req.query.email;
+    const profilePictureUrl = req.query.profilePictureUrl;
+    const username = req.query.username;
+    const service=req.query.selectedService;
+    const password = req.query.password;
+   const fees=req.query.fees;
+    console.log(doctorName)
+    console.log(contactNumber)
+    console.log(qualifications)
+    console.log(experienceYears)
+    console.log(email)
+    console.log(profilePictureUrl)
+    console.log(fees)
+    console.log(service)
+
+    try {
+    
+        const sql = 'INSERT INTO Doctors (doctor_name, contact_number, qualifications, experience_years, email, profile_picture_url,username,password,service,fees) VALUES (?, ?, ?, ?, ?, ?,? , ?, ?, ?)';
+        const values = [doctorName, contactNumber, qualifications, experienceYears, email, profilePictureUrl,username,password,service,fees];
+
+        await pool.query(sql, values);
+        let successmessage = "Doctor Added Successfully!";
+        const response = {
+            successmessage: successmessage,
+        };
+      console.log(response);
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+        res.send('Data received and inserted successfully');
+    } catch (error) {
+        console.error('Error:', error.message);
+
+        let responseMessage;
+        let statusCode;
+
+        switch (error.code) {
+            case 'ER_DUP_ENTRY':
+                responseMessage = 'Duplicate entry error. The specified Doctor already exists.';
+                statusCode = 400;
+                break;
+            case 'ER_NO_REFERENCED_ROW_2':
+                responseMessage = 'Foreign key constraint violation. The specified SupplierID does not exist.';
+                statusCode = 400;
+                break;
+            // Add more cases for other error types as needed
+
+            default:
+                responseMessage = 'Internal Server Error';
+                statusCode = 500;
+        }
+
+        const response = {
+            errorsinsertion: responseMessage,
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+        //   console.log(response);
+        res.status(statusCode).send(responseMessage);
+    } finally {
+       
+    }
+   
+}
+catch(error)
+{
+
+}
+
+
+
+
+});
