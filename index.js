@@ -92,3 +92,50 @@ app.get('/senddata', async (req, res) => {
         console.error('Error:', error.message);
     }
 });
+app.get('/verifyclientlogin', async (req, res) => {
+
+    try {
+        const email = req.query.email; // Access the text1 query parameter sent from the client
+        const password = req.query.password;
+      console.log(email);
+      console.log(password);
+        // Compare the hashed password in the database
+        const [rows] = await pool.execute(
+            'SELECT * FROM patients WHERE email = ? AND password = ?',
+            [email, password] // Directly use the user-provided password
+        );
+
+        if (rows.length > 0) {
+            let loginstatusofclient = "Validated";
+            const response = {
+                loginstatusofclient: loginstatusofclient,
+                email:email
+            };
+            console.log(response);
+
+            wss.clients.forEach((client) => {
+                client.send(JSON.stringify(response));
+            });
+
+
+        }
+        else {
+            let loginstatusofclient = "Incorrect";
+            const response = {
+                loginstatusofclient: loginstatusofclient,
+            };
+            console.log(response);
+
+            wss.clients.forEach((client) => {
+                client.send(JSON.stringify(response));
+            });
+            //   console.log(response);
+
+
+        }
+
+
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+});
