@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
+
+    <style>
+        body, html {
+            height: 100%; /* Full height */
+            margin: 0; /* Remove default margin */
+            position: relative; /* Needed for absolute positioning of the button */
+        }
+
+        body {
+            background-image: url('img/easypaisa.webp');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #B9DDB8;
+            background-position: center 10%; /* Position the image towards the top */
+            display: flex;
+            align-items: center; /* Center children horizontally */
+            justify-content: center; /* Center children vertically */
+        }
+       i{
+        margin-right: 10px;
+       }
+        button {
+            padding: 10px 40px 10px 20px; /* Adjust padding as needed */
+            font-size: 16px;
+            color: white;
+            background-color: #4CAF50; /* Green background */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute; /* Absolute position relative to the nearest positioned ancestor */
+            top: 10px; /* 10px from the top */
+            left: 10px; /* 10px from the left */
+            display: flex; /* Make button a flex container */
+            align-items: center; /* Center icon vertically */
+        }
+
+        button:hover {
+            background-color: #45a049; /* Slightly darker green */
+        }
+    </style>
+</head>
+<body>
+    <!-- Button for managing appointments, positioned at the top-left corner -->
+    <button onclick="location.href='manageappointments.html'"><i class="fas fa-calendar-alt button-icon"></i> Manage Your Appointments</button>
+</body>
+</html>
