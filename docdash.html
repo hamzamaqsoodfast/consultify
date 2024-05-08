@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Doctor Dashboard Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Tektur&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<style>
+      .doctor-card {
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: #f8f9fa;
+  }
+  .doctor-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  }
+  .profile-pic {
+    border-radius: 50%;
+    height: 100px;
+    width: 100px;
+  }
+  .info-icon {
+    margin-right: 10px;
+    color: #007bff;
+  }
+</style>
+</style>
+<body>
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>Dashboard</h1>
+        </div>
+        <ul>
+           
+                <li><i class="fas fa-tachometer-alt"></i>&nbsp; <span>Dashboard</span> </li>
+      <a href="appointment.html"> <li><i class="fas fa-file-invoice"></i>&nbsp;<span>Update Slots</span> </li></a>         
+           <a href="doctormanageappointments.html"><li><i class="fas fa-user"></i>&nbsp;<span>Manage Appointments</span> </li></a>     
+            <a href="medicine.html"><li ><i class="fas fa-pills" ></i>&nbsp;<span>Add Feedback</span> </li></a>    
+        </ul>
+    </div>
+    <div class="container">
+      
+        <div class="container">
+            <div class="row doctor-card">
+              <div class="col-md-2 d-flex align-items-center justify-content-center">
+                <img src="" alt="Doctor Profile Picture" class="profile-pic" id="doctorPicture">
+              </div>
+              <div class="col-md-10">
+                <h4><i class="fas fa-user-md info-icon"></i><span id="doctorName">Doctor Name</span></h4>
+                <p><i class="fas fa-phone info-icon"></i>Contact Number: <span id="contactNumber"></span></p>
+                <p><i class="fas fa-graduation-cap info-icon"></i>Qualification: <span id="qualifications"></span></p>
+                <p><i class="fas fa-stethoscope info-icon"></i>Specialization: <span id="specialization"></span></p>
+                <p><i class="fas fa-envelope info-icon"></i>Email: <span id="email"></span></p>
+                <p><i class="fas fa-briefcase info-icon"></i>Experience Years: <span id="experienceYears"></span> years</p>
+              </div>
+            </div>
+          </div>
+          
+          
+
+        </div>
+</body>
+
+</html>
+<style>
+    .card{
+        border-radius: 10px;
+    }
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+body {
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+
+}
+a {
+    text-decoration: none;
+}
+li {
+    list-style: none;
+}
+h1,
+h2 {
+    color: #444;
+}
+h3 {
+    color: #999;
+}
+.btn {
+    background: #3498db;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+}
+.btn:hover {
+    color: #f05462;
+    background: white;
+    padding: 3px 8px;
+    border: 2px solid #3498db;
+}
+.title {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 10px;
+    border-bottom: 2px solid #999;
+}
+table {
+    padding: 10px;
+}
+th,
+td {
+    text-align: left;
+    padding: 8px;
+}
+.side-menu {
+    position: fixed;
+    background: #3498db;
+    width: 20vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.side-menu .brand-name {
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.side-menu li {
+    font-size: 24px;
+    padding: 10px 40px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.side-menu li:hover {
+    background: white;
+    color: #3498db;
+}
+.container {
+    position: absolute;
+    right: 0;
+    width: 80vw;
+    height: 100vh;
+    background: #f1f1f1;
+}
+.container .header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 80vw;
+    height: 10vh;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+.container .header .nav {
+    width: 90%;
+    display: flex;
+    align-items: center;
+}
+.container .header .nav .search {
+    flex: 3;
+    display: flex;
+    justify-content: center;
+}
+.container .header .nav .search input[type=text] {
+    border: none;
+    background: #f1f1f1;
+    padding: 10px;
+    width: 50%;
+}
+.container .header .nav .search button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.container .header .nav .search button img {
+    width: 30px;
+    height: 30px;
+}
+.container .header .nav .user {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.container .header .nav .user img {
+    width: 40px;
+    height: 40px;
+}
+.container .header .nav .user .img-case {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+.container .header .nav .user .img-case img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.container .content {
+    position: relative;
+    margin-top: 10vh;
+    min-height: 90vh;
+    background: #f1f1f1;
+}
+.container .content .cards {
+    padding: 20px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+.container .content .cards .card {
+    width: 250px;
+    height: 150px;
+    background: white;
+    margin: 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.container .content .content-2 {
+    min-height: 60vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.container .content .content-2 .recent-payments {
+    min-height: 50vh;
+    flex: 5;
+    background: white;
+    margin: 0 25px 25px 25px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: flex;
+    flex-direction: column;
+}
+.container .content .content-2 .new-students {
+    flex: 2;
+    background: white;
+    min-height: 50vh;
+    margin: 0 25px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: flex;
+    flex-direction: column;
+}
+.container .content .content-2 .new-students table td:nth-child(1) img {
+    height: 40px;
+    width: 40px;
+}
+
+
+     /* Add your custom styles here */
+     ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        li img {
+            margin-right: 10px;
+        }
+
+        li span {
+            font-weight: bold;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .card {
+            width: 200px;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .box h1 {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .box h3 {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .icon-case {
+            margin-top: 20px;
+        }
+
+        .icon-case i {
+            font-size: 36px;
+            color: #3498db; /* Change the color to your preference */
+        }
+
+</style>
+
+
+<script>
+
+function updateCard(dataprofile) {
+  document.getElementById('doctorName').textContent = dataprofile[0].doctor_name;
+  document.getElementById('contactNumber').textContent = dataprofile[0].contact_number;
+  document.getElementById('qualifications').textContent = dataprofile[0].qualifications;
+  document.getElementById('specialization').textContent = dataprofile[0].service;
+  document.getElementById('email').textContent = dataprofile[0].email;
+  document.getElementById('experienceYears').textContent = dataprofile[0].experience_years;
+  document.getElementById('doctorPicture').src = dataprofile[0].profile_picture_url;
+}
+    const socket = new WebSocket('ws://localhost:8080');
+    socket.addEventListener('message', (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.dataprofile !== undefined) {
+              
+                updateCard(data.dataprofile);
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    });
+    socket.addEventListener('message', (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            if (data.loginstatus !== undefined) {
+              if(data.loginstatus=='doctornotexists')
+              {
+                    window.location.replace("http://127.0.0.1:5500/logindoc.html");
+
+              }
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    });
+    const statuslogin= localStorage.getItem('loginsuccess');
+   if(statuslogin!=='yes')
+   {
+    window.location.replace("http://127.0.0.1:5500/logindoc.html");
+
+   }
+
+    
+   
+   function checkprofile() {
+    const username = localStorage.getItem('username');
+    console.log(username);
+    const url = `http://localhost:3000/checkprofile?username=${username}`;
+    fetch(url)
+        .then(response => response.text())
+        .then(message => {
+            console.log(message);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+function checkexist() {
+    const username = localStorage.getItem('username');
+    console.log(username);
+    const url = `http://localhost:3003/checkexist?username=${username}`;
+    fetch(url)
+        .then(response => response.text())
+        .then(message => {
+            console.log(message);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+
+// Ensure the function is called as soon as the page loads
+window.onload = function() {
+    checkprofile();
+    checkexist();
+}
+
+    </script>
