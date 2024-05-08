@@ -748,3 +748,218 @@ app1.get('/getadminappointmentfeedback', async (req, res) => {
         res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
     }
 });
+
+app1.get('/generategemini', async (req, res) => {
+    // Extracting the basic prescription from query parameters
+    const basicPrescription = req.query.doctorbasicprescriptionword;
+    console.log(basicPrescription)
+    if (!basicPrescription) {
+        return res.status(400).send('No prescription provided');
+    }
+
+    try {
+        // Configure the model and prompt for generating content
+        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const prompt = `Generate a concise prescription based on the following input, focusing strictly on medication information, dosage instructions, and safety advice. Ensure that no personal patient details are included: "${basicPrescription}"`;
+
+        // Generate refined content based on the basic prescription
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const refinedPrescription = response.text();
+        console.log(refinedPrescription);
+        
+        // Send the refined prescription as the response
+        res.json({ refinedPrescription });
+
+    } catch (error) {
+        console.error('Error with the AI generation or server:', error.message);
+        res.status(500).send('Internal server error');
+    }
+});
+app1.get('/saveprescription', async (req, res) => {
+    // Extracting query parameters from the request
+    const appointmentID = req.query.appointmentID;
+    
+    const description = req.query.description;
+
+    try {
+        // Update the refund status of the payment in the Payments table
+        await pool.execute(`
+            UPDATE Appointments 
+            SET feedback = ?
+            WHERE AppointmentID = ?
+        `, [description, appointmentID]);
+
+         let successstatusprescription="Prescription Updated Successfully!";
+        res.json({ successstatusprescription });
+
+
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
+app1.get('/getrespecteddoctorfeeback', async (req, res) => {
+    // Extracting query parameters from the request
+    const doctorName = req.query.doctorName;
+   console.log('hi',doctorName);
+    // Check if the doctorName is undefined or an empty string
+    if (!doctorName) {
+        res.status(400).json({ error: "Doctor name is required and must not be empty." });
+        return;
+    }
+
+    try {
+        // Fetch doctor ID using the doctor's name from the Doctors table
+        const [doctorRows] = await pool.execute(`
+            SELECT doctor_id FROM Doctors WHERE username = ?
+        `, [doctorName]);
+     console.log(doctorRows);
+        // Check if a doctor was found
+        if (doctorRows.length === 0) {
+            res.status(404).json({ error: "Doctor not found!" });
+            return;
+        }
+
+        // Assuming doctorRows contains only one doctor with the provided name
+        const doctorId = doctorRows[0].doctor_id;
+        console.log('doc: ',doctorId)
+        // Fetch appointments with the doctor's ID
+        const [appointmentRows] = await pool.execute(`
+            SELECT A.AppointmentID, A.PatientEmail, A.AppointmentDate, A.Status, A.Notes, A.DriveLink, D.doctor_name, DA.slot
+            FROM Appointments A
+            JOIN Doctors D ON A.DoctorID = D.doctor_id
+            JOIN DoctorAvailability DA ON A.SlotID = DA.id
+            WHERE A.DoctorID = ?
+        `, [doctorId]);
+
+        // Handle case where no appointments are found
+        if (appointmentRows.length === 0) {
+            res.json({ error: "No appointments found for the selected doctor." });
+            return;
+        }
+     console.log(appointmentRows);
+        // Send the appointments data as JSON
+        res.json({ appointmentRows });
+
+        // Optionally, send the appointments to WebSocket clients
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ appointmentRows }));
+            }
+        }); 
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});async function senddoctordatatoclient(ws) {
+    try {
+      
+
+        const [rows] = await pool.execute('SELECT * FROM Doctors');
+        const response = {
+            doctorsdata: rows,
+
+        };
+
+
+        ws.send(JSON.stringify(response));
+    } catch (error) {
+        console.error('Error fetching data from the database:', error);
+    }
+}
+
+async function senddoctorcount(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Doctors');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        totaldoctors: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    senddoctorcount(ws);
+  });
+wss.on('connection', (ws) => {
+    senddoctordatatoclient(ws);
+
+});
+
+async function totalappointments(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Appointments');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        totalappointments: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    totalappointments(ws);
+  });
+  async function totalpatients(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Patients');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        patientcount: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    totalpatients(ws);
+  });
+
+
+const port1 = process.env.PORT1 || 3000;
+
+// Define the second port
+const port2 = process.env.PORT2 || 3003;
+
+
+// Listen on the first port
+app.listen(port1, () => {
+    console.log(`App1 running on port ${port1}`);
+});
+
+// Listen on the second port
+app1.listen(port2, () => {
+    console.log(`App2 running on port ${port2}`);
+});
