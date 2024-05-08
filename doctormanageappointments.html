@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Management</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .card-custom {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
+            border: 1px solid #007BFF;
+        }
+
+        .card-custom:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-custom {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-custom {
+            color: #fff;
+            background-color: #007bff;
+        }
+
+        .btn-group .btn-danger {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-group .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+        .header {
+            background: linear-gradient(90deg, rgba(106,17,203,1) 0%, rgba(37,117,252,1) 100%);
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            padding: 10px;
+            font-size: 28px;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Appointment Management</h1>
+    </div>
+    <div class="container mt-5">
+        <div class="card card-custom p-3 mb-5">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>AppointmentID</th>
+                            <th>Patient Email</th>
+                            <th>Time</th>
+                            <th>Appointment Date</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Drive Link</th>
+                            <th>Doctor Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <p id="notcancel" style="font-size: 18px; font-weight: bold; color: blue;"></p>
+        <p id="donecancel" style="font-size: 18px; font-weight: bold; color: orange;"></p>
+        
+    </div>
+
+    <script>
+        function cancelAppointment(id) {
+            if (confirm('Are you sure you want to cancel appointment ID: ' + id + '?')) {
+                // Implement cancellation logic here
+                console.log('Appointment ' + id + ' canceled.');
+            }
+        }
+
+        function updateAppointment(id) {
+            $('#updateModal').modal('show');
+            // Populate modal with data and implement update logic here
+        }
+    </script>
+    <!-- Modals and additional scripts can be added here -->
+</body>
+
+</html>
+<script>
+      var doctorName = localStorage.getItem('username');
+    const url = `http://localhost:3003/managedoctorappointments?doctorName=${doctorName}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('data is',data);
+            const tbody = document.querySelector('.table tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.appointmentRows.forEach(row => {
+                console.log(`Status for ${row.AppointmentID}: ${row.Status}`); // Debug: Log each status.
+
+                const isCancelled = row.Status === 'cancelled' ||row.Status === 'completed'; // Explicit check for 'Cancelled' status
+
+                const tr = document.createElement('tr');
+
+                // Define the HTML content for each cell
+                tr.innerHTML = `
+                    <td>${row.AppointmentID}</td>
+                    <td>${row.PatientEmail}</td>
+                    <td>${row.slot}</td>
+                    <td>${new Date(row.AppointmentDate).toLocaleDateString()}</td>
+                    <td><span class="badge badge-custom">${row.Status}</span></td>
+                    <td>${row.Notes}</td>
+                    <td><a href="${row.DriveLink}" target="_blank">View</a></td>
+                    <td>${row.doctor_name}</td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn btn-danger btn-sm" onclick="cancelAppointment(this, ${row.AppointmentID})" ${isCancelled ? 'disabled' : ''}>Cancel</button>
+                            <button class="btn btn-primary btn-sm" onclick="window.location.href='seerecord.html?appointmentid=${row.AppointmentID}'">View Report</button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+        });
+    const socket = new WebSocket('ws://localhost:8080'); // Replace with your server URL
+    
+    socket.addEventListener('message', (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        if (data.canceldone !== undefined) {
+            localStorage.setItem('canceldone', data.canceldone); // Store the message data
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+    }
+});
+
+// After the page reloads
+document.addEventListener('DOMContentLoaded', () => {
+    const canceldone = localStorage.getItem('canceldone');
+    if (canceldone) {
+        document.getElementById('notcancel').innerText='';
+        document.getElementById('donecancel').innerText = canceldone; // Display the message
+        localStorage.removeItem('canceldone'); // Clear the stored message data
+    }
+});
+
+    socket.addEventListener('message', (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        if (data.errorcancel !== undefined) {
+            document.getElementById('donecancel').innerText = ''; // Display the message
+
+       document.getElementById('notcancel').innerText=data.errorcancel;
+          
+        }
+    } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+    }
+});
+
+
+
+
+
+
+
+
+
+function cancelAppointment(button, appointmentID) {
+    document.getElementById('notcancel').innerText='';
+
+    const url = `http://localhost:3003/cancelappointmentdoctor?appointmentID=${appointmentID}`;
+
+fetch(url)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        button.disabled = false; // Enable button after fetching
+    })
+    .catch(error => {
+        console.error('Fetch Error:', error);
+        button.disabled = false; // Enable button on error
+    });
+
+}
+
+
+  
+</script>
