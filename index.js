@@ -665,3 +665,86 @@ app1.get('/changestatus', async (req, res) => {
     }
 });
 
+app1.get('/changepaymentstatus', async (req, res) => {
+    // Extracting query parameters from the request
+    const paymentid = req.query.paymentid;
+    const status = req.query.status;
+    const updatedstatus = status.toLowerCase(); // Ensure status is in lower case
+
+    try {
+        // Update the status of the payment in the Payments table
+        await pool.execute(`
+            UPDATE Payments 
+            SET PaymentStatus = ?
+            WHERE PaymentID = ?
+        `, [updatedstatus, paymentid]);
+
+        const response = {
+            successstatus: "Payment status updated successfully."
+        };
+        console.log(response);
+
+        res.json(response);
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
+
+app1.get('/refundstatus', async (req, res) => {
+    // Extracting query parameters from the request
+    const paymentid = req.query.paymentid;
+    const status = req.query.status;
+    const updatedstatus = status.toLowerCase(); // Ensure status is in lower case
+
+    try {
+        // Update the refund status of the payment in the Payments table
+        await pool.execute(`
+            UPDATE Payments 
+            SET RefundStatus = ?
+            WHERE PaymentID = ?
+        `, [updatedstatus, paymentid]);
+
+        const response = {
+            successstatus: "Refund status updated successfully."
+        };
+        console.log(response);
+
+        res.json(response);
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
+app1.get('/getadminappointmentfeedback', async (req, res) => {
+    // Extracting query parameters from the request
+
+
+    try {
+        // Fetch appointments with doctor's name and slot time from the database matching the patient email
+        const [appointmentRows] = await pool.execute(`
+        SELECT A.rating, A.AppointmentID, A.PatientEmail, A.AppointmentDate, A.Status, A.Notes, A.DriveLink, D.doctor_name, DA.slot
+        FROM Appointments A
+        JOIN Doctors D ON A.DoctorID = D.doctor_id
+        JOIN DoctorAvailability DA ON A.SlotID = DA.id
+        WHERE A.Status = 'completed'
+    `);
+    
+        if (appointmentRows.length === 0) {
+            // No appointments found, send error response
+            const response = { notcompleted: "No Data Found!" };
+            res.json(response);
+            console.log(response);
+
+            return;
+        }
+
+        const response = { completeddata: appointmentRows };
+    //    console.log(response);
+        res.json(response);
+    
+    } catch (error) {
+        console.error('Database or server error:', error.message);
+        res.status(500).send('Internal server error'); // Send HTTP status 500 for internal server errors
+    }
+});
