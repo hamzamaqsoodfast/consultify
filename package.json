@@ -1,0 +1,29 @@
+{
+  "name": "consultify",
+  "version": "1.0.0",
+  "description": "consultation appoinment",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "consultify"
+  ],
+  "author": "hamza",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.10.0",
+    "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.6",
+    "openai": "^4.38.1",
+    "path": "^0.12.7",
+    "ws": "^8.16.0"
+  }
+}
