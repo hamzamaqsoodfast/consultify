@@ -991,3 +991,87 @@ app.listen(port1, () => {
 app1.listen(port2, () => {
     console.log(`App2 running on port ${port2}`);
 });
+app.get('/updatedoctor', async (req, res) => {
+    const {
+        doctorid,
+        doctorName,
+        contactNumber,
+        qualifications,
+        experienceYears,
+        email,
+        profilePictureUrl,
+        username,
+        password,
+        service,
+        fees
+    } = req.query;
+console.log(username);
+console.log(password);
+
+    try {
+
+        // Check if the specified medicineID exists before updating
+        const checkSql = 'SELECT * FROM Doctors WHERE doctor_id = ?';
+        const checkResult = await pool.query(checkSql, [doctorid]);
+
+        if (checkResult.length === 0) {
+            const response = {
+                errorsupdate: 'Doctor not found. Update failed.',
+            };
+
+            wss.clients.forEach((client) => {
+                client.send(JSON.stringify(response));
+            });
+
+            //    console.log(response);
+            res.status(404).send('Doctor not found. Update failed.');
+            return;
+        }
+
+
+
+        // Update the row in the Medicine table based on medicineID
+        const updateSql = 'UPDATE Doctors SET doctor_name=?, qualifications=?, experience_years=?, contact_number=?, email=?, profile_picture_url=?, username=?, password=?, service=?, fees=? WHERE doctor_id=?';
+
+        const updateValues = [doctorName, qualifications, experienceYears, contactNumber, email, profilePictureUrl, username, password,service,fees, doctorid];
+        
+        await pool.query(updateSql, updateValues);
+        let successmessage = 'Doctor Updated Successfully!';
+        const response = {
+            successmessage: successmessage,
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+        // console.log('Data updated in Customer table');
+        res.send('Data received and updated successfully');
+
+    } catch (error) {
+        console.error('Error:', error.message);
+
+        let responseMessage;
+        let statusCode;
+
+        switch (error.code) {
+            // Handle specific error codes as needed
+            default:
+                responseMessage = 'Internal Server Error';
+                statusCode = 500;
+        }
+
+        const response = {
+            errorsupdate: responseMessage,
+        };
+
+        wss.clients.forEach((client) => {
+            client.send(JSON.stringify(response));
+        });
+
+        //     console.log(response);
+        res.status(statusCode).send(responseMessage);
+    } finally {
+     
+    }
+});
