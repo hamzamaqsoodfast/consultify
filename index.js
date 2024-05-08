@@ -869,6 +869,35 @@ app1.get('/getrespecteddoctorfeeback', async (req, res) => {
     }
 }
 
+/*async function senddoctorcount(ws) {
+    try {
+ 
+  
+      // Fetch the count of rows from the Customer table
+      const [countRows] = await pool.execute('SELECT COUNT(*) AS rowCount FROM Doctors');
+  
+      // Extract the count value from the result
+      const rowCount = countRows[0].rowCount;
+  
+      // Prepare the response object with the count of rows
+      const response = {
+        totaldoctors: rowCount,
+      };
+
+      ws.send(JSON.stringify(response));
+    } catch (error) {
+      console.error('Error fetching data from the database:', error);
+    }
+  }
+  
+  wss.on('connection', (ws) => {
+    senddoctorcount(ws);
+  });
+wss.on('connection', (ws) => {
+    senddoctordatatoclient(ws);
+
+});
+*/
 async function senddoctorcount(ws) {
     try {
  
@@ -897,7 +926,6 @@ wss.on('connection', (ws) => {
     senddoctordatatoclient(ws);
 
 });
-
 async function totalappointments(ws) {
     try {
  
