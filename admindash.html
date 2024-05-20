@@ -27,7 +27,7 @@
         </div>
         <!-- Right Side: Admin Profile Name -->
         <div class="me-4">
-            <i class="fas fa-user-circle"></i> Admin Name
+            <i class="fas fa-user-circle"></i> Hamza
         </div>
     </div>
 
@@ -89,11 +89,14 @@
         <!-- Marketing Area -->
         <div class="col-md-12">
             <div class="card">
+                <a href="marketing.html" style="text-decoration: none; color: inherit;">
+
                 <div class="card-header bg-secondary text-white">Marketing Tools</div>
                 <div class="card-body">
                     <p>Access marketing tools and analytics.</p>
                     <button class="btn btn-primary">Go to Marketing</button>
                 </div>
+                </a>
             </div>
         </div>
     </div>
@@ -102,6 +105,13 @@
 </body>
 </html>
 <script>
+      const adminusername=localStorage.getItem('adminusername');
+   if(adminusername=='' || adminusername==null)
+   {
+    
+    window.location.replace("http://127.0.0.1:5500/adminlog.html");
+
+   }
      const socket = new WebSocket('ws://localhost:8080'); // Replace with your server URL
 
      socket.addEventListener('message', (event) => {
